@@ -1,0 +1,325 @@
+<?xml version='1.0'?>
+ 
+<robot name="robot" 
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+ 
+  
+  <xacro:property name="PI" value="3.1415926" />
+
+  <link name="footprint"></link>
+
+ 
+  <link name='base'>
+    <pose>0 0 0.1 0 0 0</pose>
+ 
+    <inertial>
+      <mass value="1.50"/>
+      <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+      <inertia ixx="0.00282" ixy="0" ixz="0" iyy="0.00417" iyz="0" izz="0.00615" />
+    </inertial>
+ 
+    <collision name='collision'>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="0.3 0.24 0.1"/>
+      </geometry>
+    </collision>
+ 
+    <visual name='base_visual'>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="0.3 0.24 0.1"/>
+      </geometry>
+    </visual>
+ 
+  </link>
+
+  <xacro:macro name="wheel_and_joint" params="name x y">
+
+    <link name="${name}_wheel">
+      <inertial>
+        <mass value="0.50"/>
+        <origin xyz="0.0 0 0" rpy=" 0 ${PI/2} ${PI/2}"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001" />
+      </inertial>
+  
+      <visual>
+        <origin xyz="0.0 0 0" rpy=" 0 ${PI/2} ${PI/2}"/>
+        <geometry>
+          <cylinder length="0.05" radius="0.06"/>
+        </geometry>
+      </visual>
+  
+      <collision>
+        <origin xyz="0.0 0 0" rpy=" 0 ${PI/2} ${PI/2}"/>
+        <geometry>
+          <cylinder length="0.05" radius="0.06"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint type="continuous" name="${name}_wheel_joint">
+      <origin xyz="${x} ${y} 0" rpy="0 0 0"/>
+      <child link="${name}_wheel"/>
+      <parent link="base"/>
+      <axis xyz="0 1 0" rpy="0 0 0"/>
+      <limit effort="10000" velocity="1000"/>
+      <dynamics damping="1.0" friction="1.0"/>
+    </joint>
+
+    <gazebo reference="${name}_wheel">
+      <material>Gazebo/Gray</material>
+      <mu1>0.1</mu1>
+      <mu2>0.1</mu2>
+      <kp>500000.0</kp>
+      <kd>10.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>0.1</maxVel>
+      <fdir1>1 0 0</fdir1>
+    </gazebo>
+
+  </xacro:macro>
+
+  <xacro:macro name="ball_wheel_and_joint" params="name x y z">
+
+    <link name="${name}_ball_wheel">
+      <inertial>
+        <mass value="0.1"/>
+        <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+        <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0005" />
+      </inertial>
+  
+      <visual>
+        <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+        <geometry>
+          <sphere radius="0.005"/>
+        </geometry>
+      </visual>
+  
+      <collision>
+        <origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+        <geometry>
+          <sphere radius="0.005"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint type="fixed" name="${name}_ball_wheel_joint">
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0"/>
+      <child link="${name}_ball_wheel"/>
+      <parent link="base"/>
+      <axis xyz="0 0 1" rpy="0 0 0"/>
+    </joint>
+
+    <gazebo reference="${name}_ball_wheel">
+      <material>Gazebo/Gray</material>
+      <mu1>0.1</mu1>
+      <mu2>0.1</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <maxVel>1.0</maxVel>
+    </gazebo>
+   
+  </xacro:macro>
+
+  <xacro:wheel_and_joint name="front_left" x="0.05" y="0.15"/>
+  <!-- <xacro:wheel_and_joint name="back_left" x="-0.11" y="0.15"/> -->
+  <xacro:wheel_and_joint name="front_right" x="0.05" y="-0.15"/>
+  <!-- <xacro:wheel_and_joint name="back_right" x="-0.11" y="-0.15"/> -->
+  <xacro:ball_wheel_and_joint name="back1" x="-0.11" y="0.1" z="-0.055"/>
+  <xacro:ball_wheel_and_joint name="back2" x="-0.11" y="-0.1" z="-0.055"/>
+  <link name="camera">
+    <inertial>
+      <mass value="0.1"/>
+      <origin xyz="0.02 0.05 0.05" rpy=" 0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+ 
+    <visual name="camera_visual">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.02 0.05 0.05"/>
+      </geometry>
+    </visual>
+ 
+    <collision name="camera_colision">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.02 0.05 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+ 
+  <link name="vodyne">
+    <inertial>
+      <mass value="1e-5"/>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+ 
+    <visual name="vodyne_visual">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.06"/>
+      </geometry>
+    </visual>
+ 
+    <collision name="vodyne_colision">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+          <cylinder length="0.05" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+ 
+  
+  <joint name="footprint_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="footprint"/>
+    <child link="base" />
+  </joint>
+
+  <joint type="fixed" name="camera_joint">
+    <origin xyz="0.175 0 0" rpy="0 0 0"/>
+    <child link="camera"/>
+    <parent link="base"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+  </joint>
+ 
+  <joint type="fixed" name="vodyne_joint">
+    <origin xyz="0.08 0 0.075" rpy="0 0 0"/>
+    <child link="vodyne"/>
+    <parent link="base"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+  </joint>
+ 
+  <gazebo reference="base">
+    <material>Gazebo/White</material>
+  </gazebo>
+ 
+  <gazebo reference="camera">
+    <material>Gazebo/Black</material>
+  </gazebo>
+ 
+  <gazebo reference="vodyne">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+ 
+
+  <!--skid_steer_drive_controller-->
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>false</alwaysOn>
+      <legacyMode>false</legacyMode>
+      <publishTf>true</publishTf>
+      <publishWheelJointState>true</publishWheelJointState>
+      <updateRate>60</updateRate>
+      <leftJoint>front_left_wheel_joint</leftJoint>
+      <rightJoint>front_right_wheel_joint</rightJoint>
+
+      <wheelSeparation>0.30 </wheelSeparation>
+      <wheelDiameter>0.12</wheelDiameter>
+      <robotBaseFrame>footprint</robotBaseFrame>
+      <torque>20</torque>
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometrySource>world</odometrySource>
+      
+      <wheelAcceleration>1</wheelAcceleration>
+      <wheelTorque>10</wheelTorque>
+      <rosDebugLevel>na</rosDebugLevel>
+
+    </plugin>
+  </gazebo>
+
+  <!-- camera -->
+  <gazebo reference="camera">
+    <sensor type="camera" name="camera_sensor">
+      <update_rate>30.0</update_rate>
+      <always_on>1</always_on>
+ 
+      <camera name="camera">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <distortion>
+          <k1>0.0</k1>
+          <k2>0.0</k2>
+          <k3>0.0</k3>
+          <p1>0.0</p1>
+          <p2>0.0</p2>
+          <center>0.5 0.5</center>
+        </distortion>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace>/robot</namespace>
+          <argument>camera/image_raw:=/robot/camera/image</argument>
+          <argument>camera/camera_info:=/robot/camera/image/camera_info</argument>
+        </ros>
+        <camera_name>camera</camera_name>
+        <frame_name>camera</frame_name>
+        <hack_baseline>0.07</hack_baseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <gazebo reference="vodyne">
+    <sensor type="ray" name="vodyne16">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>10</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>1200</samples> <!-- Change this to 500 if gazebo keeps timing out -->
+            <resolution>1</resolution>
+            <min_angle>-1.0471975</min_angle>
+            <max_angle>1.0471975</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>64</samples>
+            <resolution>1</resolution>
+            <min_angle>-0.26179938</min_angle>
+            <max_angle>0.26179938</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.055</min>
+          <max>100.0</max>
+          <resolution>0.1</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.00</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_velodyne_laser.so">
+        <topicName>/scan</topicName>
+        <frameName>laser</frameName>
+        <min_range>0.9</min_range>
+        <max_range>130.0</max_range>
+        <gaussianNoise>0.0</gaussianNoise>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+</robot>
+
+
+
+
+
+
+
+
